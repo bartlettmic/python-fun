@@ -3,14 +3,14 @@
 from PIL import Image
 import math
 import cmath
-from mpmath import findroot
+#from mpmath import findroot
 # from scipy.misc import derivative
 
 def truncate(number, digits) -> float:
     stepper = pow(10.0, digits)
     return math.trunc(stepper * number) / stepper
-imgx = 2000
-imgy = 2000
+imgx = 500
+imgy = 500
 image = Image.new("HSV", (imgx, imgy))
 # drawing area
 xa = -1.0
@@ -38,7 +38,7 @@ for y in range(imgy):
         i=0
         while i < maxIt:
             #dz = (f(z + complex(h, h)) - f(z)) / complex(h, h)
-            dz = 8*z**7-16*z**15-1
+            dz = 8*z**7-16*z**15+z**-9
             # dz = derivative(f, z)
             # z0 = z - a*(f(z) / dz) # Newton iteration
             z0 = z - (f(z) / dz) # Newton iteration
@@ -49,16 +49,17 @@ for y in range(imgy):
         # _root = findroot(f,z, verify=False)
         # _root = complex(round(_root.real,3),round(_root.imag,3))
         _root = complex(round(z.real,3),round(z.imag,3))
-        if _root not in roots:
+        try:
+            matrix[x][y] = [roots.index(_root),i]
+        except:
             roots.append(_root)
-        matrix[x][y] = [roots.index(_root),i]
+            matrix[x][y] = [len(roots)-1,i]
     print(y)
-print(roots)
 
 # Create image now that we know how many roots there are
 for y in range(imgy):
     for x in range(imgx):
-        color = int(float(matrix[x][y][0])/float(len(roots))*255.0)
+        color = int(float(matrix[x][y][0]+1)/float(len(roots))*255.0)
         shadow = int((float(matrix[x][y][1])/float(maxIt))**2 * 255.0)
         # image.putpixel((x, y), (color, 255, 255-ratio*2))
         image.putpixel((x, y), (color, 255, shadow*2))
