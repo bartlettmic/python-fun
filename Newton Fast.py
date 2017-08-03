@@ -26,7 +26,7 @@ roots=[]
 matrix = [[0 for x in range(imgx)] for y in range(imgy)] 
 
 def f(z):
-    return z**8-z**16-1
+    return z**8-z**16-1+cmath.log(z)
 
 
 #Find all the roots displayed in the image, essentially a pre-pass to expedite image creation
@@ -38,7 +38,7 @@ for y in range(imgy):
         i=0
         while i < maxIt:
             #dz = (f(z + complex(h, h)) - f(z)) / complex(h, h)
-            dz = 8*z**7-16*z**15+z**(cmath.log(z))
+            dz = 8*z**7-16*z**15-1
             # dz = derivative(f, z)
             # z0 = z - a*(f(z) / dz) # Newton iteration
             z0 = z - (f(z) / dz) # Newton iteration
@@ -48,7 +48,7 @@ for y in range(imgy):
             i+=1
         # _root = findroot(f,z, verify=False)
         # _root = complex(round(_root.real,3),round(_root.imag,3))
-        _root = complex(round(z.real,3),round(z.imag,3))
+        _root = complex(round(z.real),round(z.imag))
         try:
             matrix[x][y] = [roots.index(_root),i]
         except:
@@ -62,5 +62,5 @@ for y in range(imgy):
         color = int(float(matrix[x][y][0]+1)/float(len(roots))*255.0)
         shadow = int((float(matrix[x][y][1])/float(maxIt))**2 * 255.0)
         # image.putpixel((x, y), (color, 255, 255-ratio*2))
-        image.putpixel((x, y), (color, 255, shadow*2))
+        image.putpixel((x, y), (10+color, 255, shadow*2))
 image.convert("RGB").save("fractal.png", "PNG")
