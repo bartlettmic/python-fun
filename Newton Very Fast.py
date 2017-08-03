@@ -9,8 +9,8 @@ from scipy.misc import derivative
 def truncate(number, digits) -> float:
     stepper = pow(10.0, digits)
     return math.trunc(stepper * number) / stepper
-imgx = 1000
-imgy = 1000
+imgx = 500
+imgy = 500
 image = Image.new("HSV", (imgx, imgy))
 # drawing area
 xa = -1.0
@@ -24,10 +24,8 @@ eps = 1e-3 # max error allowed
 a = -0.5
 
 def f(z):
-    return z**3-z**16-1+cmath.log(abs(2*z**2))
+    return z**3-z**16
 
-
-#Find all the roots displayed in the image, essentially a pre-pass to expedite image creation
 for y in range(imgy):
     zy = y * (yb - ya) / (imgy - 1) + ya
     for x in range(imgx):
@@ -36,14 +34,14 @@ for y in range(imgy):
         i=0
         while i < maxIt:
             # dz = (f(z + complex(h, h)) - f(z)) / complex(h, h)
-            # dz = cmath.log(z)
-            dz = 8*z**4-16*z**15-1
-            # dz = derivative(f, z)
+            try:
+                dz = 8*z**4-16*z**15-1
+            except OverflowError:
+                pass
             try:
                 z0 = z - (f(z) / dz) # Newton iteration
             except OverflowError:
-                z0 = (z+z0)/2
-            # z0 = z - (f(z) / dz) # Newton iteration
+                pass
             if abs(z0 - z) < eps: # stop when close enough to any root
                 break
             z = z0
