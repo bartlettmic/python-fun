@@ -38,7 +38,7 @@ for y in range(imgy):
         i=0
         while i < maxIt:
             #dz = (f(z + complex(h, h)) - f(z)) / complex(h, h)
-            dz = 8*z**7-16*z**15+z**-9
+            dz = 8*z**7-16*z**15+z**(cmath.log(z))
             # dz = derivative(f, z)
             # z0 = z - a*(f(z) / dz) # Newton iteration
             z0 = z - (f(z) / dz) # Newton iteration
