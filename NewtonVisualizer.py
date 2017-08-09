@@ -9,8 +9,8 @@ extension = sys.argv[1].split('.')[1]
 song = AudioSegment.from_file(filename, format=extension)
 samples = song.get_array_of_samples()
 
-imgx = 100
-imgy = 100
+imgx = 1000
+imgy = 1000
 image = Image.new("HSV", (imgx, imgy))
 
 # drawing area
@@ -23,10 +23,12 @@ maxIt = 40 # max iterations allowed
 eps = 1e-2 # max error allowed
 
 def f(z,_i, loudness):
-    return (10)*z**(3+_i)-(z**(16))+(cmath.log(abs(z**((loudness**2)*2))))-1
+    return abs(z**(2+_i))-z**16-1+cmath.log(abs(2*z**(1+3*(loudness**2))))
+    # return (10)*z**(3+_i)-(z**(16))+(cmath.log(abs(z**((1+_i)*(loudness**2)*2))))-1
     # z^(2+i)-z^16-1+log(abs(2×z^(1+i))) _ 8×z^(3+i)-16×z^15-i
 def df(z,_i):
-    return (z)**(5)-(16)*z**(15)-1
+    return 8*z**(3+_i)-(16)*z**(15)-1
+    # return (z)**(5)-(16)*z**(15)-1
 
 # Record the functions used in the directory name
 funcs = []
@@ -37,19 +39,31 @@ folder = "./render/" + " _ ".join(funcs)
 if not os.path.exists(folder):
     os.makedirs(folder)
     
-fps = 30.0
+fps = 60.0
 frames = int(fps*len(song) / 1000.0)
 sampleSize = len(samples)
-frame=0
+frame= int(frames/2)
 Sstep = sampleSize/frames
 sample = frame*Sstep
 Mstep = 0.01
 _i = frame*Mstep
 
+vols = []
+maxVol = 0;
+_temp = 0
+while _temp < sampleSize:
+    vols.append(samples[int(_temp)])
+    if samples[int(_temp)] > maxVol:
+        maxVol = samples[int(_temp)]
+    _temp += Sstep
+
+maxVol = (maxVol+song.max)/2
+
 print(frames," frames, sample-step size: ",Sstep)
 
 while frame < frames:
-    loud=samples[int(sample)]/song.max
+    # loud=samples[int(sample)]/song.max
+    loud = vols[frame]/maxVol
     for y in range(imgy):
         zy = y * (yb - ya) / (imgy - 1) + ya
         for x in range(imgx):
