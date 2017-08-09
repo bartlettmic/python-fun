@@ -9,8 +9,8 @@ extension = sys.argv[1].split('.')[1]
 song = AudioSegment.from_file(filename, format=extension)
 samples = song.get_array_of_samples()
 
-imgx = 1000
-imgy = 1000
+imgx = 100
+imgy = 100
 image = Image.new("HSV", (imgx, imgy))
 
 # drawing area
