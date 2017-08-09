@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from pydub import AudioSegment
 from PIL import Image
-from multiprocessing import Process, cpu_count
+from multiprocessing import Process, Pool, cpu_count, TimeoutError
 import math, cmath, sys, os, inspect, re, atexit
 
 # Mutual parameters across all processes
@@ -39,14 +39,10 @@ xb = yb = 1.0
 maxIt = 40 # max iterations allowed
 eps = 1e-2 # max error allowed
 
-fps = 60.0  # Frames per second
+fps = 1.0  # Frames per second
 Mstep = 0.01    #Size to step through f() and/or df() each frame
-# frames = int(fps*len(song) / 1000.0) #total frames to be rendered
-frames = 1227.0
+frames = int(fps*len(song) / 1000.0) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
-# frame= 0
-# sample = frame*Sstep
-# _i = frame*Mstep
 
 # Create a smaller array with just the audio levels we'll be referencing,
 #   and normalize the audio to ratios instead of levels
@@ -61,11 +57,15 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
 del _temp
 maxVol = (maxVol+song.max)/2
 
+# Debug function
 def rander(start, stop, jobID):
-    print(start,stop,jobID)
-
+    # print(start,stop,jobID)
+    # yield (start,stop,jobID)
+    return (start,stop,jobID)
 
 def render(start, stop, jobID):
+    # sample = start*Sstep
+    _i = start*Mstep
     # while start < frames:
     for frame in range(start,stop):
         # loud=samples[int(sample)]/song.maxs
@@ -94,22 +94,28 @@ def render(start, stop, jobID):
                     i+=1
                 shadow = int((float(i)/float(maxIt))**2 * 255.0)
                 image.putpixel((x, y), (255-shadow, 255, shadow*2))
-            print(frame,"/",frames,":",round(_i,3)," ~ ",round(y/imgy*100),"%", end='\r',flush=True)
+            print("\t"*(jobID-1),jobID,": ",frame,"/",stop," ~ ",round(y/imgy*100),"%",end="\r",flush=True)
         image.convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
-        sample += Sstep
+        # sample += Sstep
         _i+=Mstep
+    return str(jobID)+" done."
 
+results = []   
+def collect_results(result):
+    results.extend(result)
 
 if __name__ == '__main__':
-    print(frames,"frames over",cpu_count(),"cores")
-    # Divvy up
     cores = cpu_count()
+    pool = Pool(processes=cores) 
+    print(frames,"frames over",cores,"cores")
+    
     for job in range(cores):
         start = math.ceil(job*frames/cores)
         stop = math.floor((job+1)*frames/cores)
-        print("Job ",job+1,": [",start,",",stop,']')
-        p = Process(target=rander, args=(start,stop,job+1,))
-        p.start()
-        p.join()
+        pool.apply_async(render, (start,stop,job+1,))
+        # print(res.get())
+    pool.close()
+    pool.join()
+    pool.terminate()
     image.convert("RGB").save(folder+"/_0.tiff", "PNG")
     
