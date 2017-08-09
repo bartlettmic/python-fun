@@ -23,7 +23,8 @@ maxIt = 40 # max iterations allowed
 eps = 1e-2 # max error allowed
 
 def f(z,_i, loudness):
-    return (10)*z**(3+_i)-(z**(16))+(cmath.log(abs(z**(1+loudness**2))))-1
+    return (10)*z**(3+_i)-(z**(16))+(cmath.log(abs(z**((loudness**2)*2))))-1
+    # z^(2+i)-z^16-1+log(abs(2×z^(1+i))) _ 8×z^(3+i)-16×z^15-i
 def df(z,_i):
     return (z)**(5)-(16)*z**(15)-1
 
@@ -36,7 +37,7 @@ folder = "./render/" + " _ ".join(funcs)
 if not os.path.exists(folder):
     os.makedirs(folder)
     
-fps = 60.0
+fps = 30.0
 frames = int(fps*len(song) / 1000.0)
 sampleSize = len(samples)
 frame=0
