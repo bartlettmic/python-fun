@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from pydub import AudioSegment
 from PIL import Image
-from multiprocessing import Process, Pool, cpu_count, TimeoutError
-import math, cmath, sys, os, inspect, re, atexit
+from multiprocessing import Process, Pool, Manager, cpu_count
+import math, cmath, sys, os, inspect, re
 
 # Mutual parameters across all processes
 filename = "./"+sys.argv[1]
@@ -16,8 +16,8 @@ sampleSize = len(samples)
 #f(z) and df(z) to be used in newtonion iteration
 def f(z,_i, loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(2*z**(1+3*(loudness**2))))
-def df(z,_i):
-    return 8*z**(3+_i)-(16)*z**(15)-1
+def df(z,_i, loudness):
+    return 8*z**(3+_i)-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
 funcs = []
@@ -29,8 +29,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 100 #Image dimensions
-imgy = 100
+imgx = 200 #Image dimensions
+imgy = 200
 image = Image.new("HSV", (imgx, imgy))
 
 xa = ya = -1.0 # Domain of graph, scaled to dimensions
@@ -39,7 +39,7 @@ xb = yb = 1.0
 maxIt = 40 # max iterations allowed
 eps = 1e-2 # max error allowed
 
-fps = 1.0  # Frames per second
+fps = 60.0  # Frames per second
 Mstep = 0.01    #Size to step through f() and/or df() each frame
 frames = int(fps*len(song) / 1000.0) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
@@ -55,18 +55,11 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
         maxVol = samples[int(_temp)]
     _temp += Sstep
 del _temp
-maxVol = (maxVol+song.max)/2
+# maxVol = (maxVol+song.max)/2
 
-# Debug function
-def rander(start, stop, jobID):
-    # print(start,stop,jobID)
-    # yield (start,stop,jobID)
-    return (start,stop,jobID)
-
-def render(start, stop, jobID):
+def render(start, stop, jobID,q):
     # sample = start*Sstep
     _i = start*Mstep
-    # while start < frames:
     for frame in range(start,stop):
         # loud=samples[int(sample)]/song.maxs
         loud = vols[frame]/maxVol
@@ -78,7 +71,7 @@ def render(start, stop, jobID):
                 i=0
                 while i < maxIt:
                     try:
-                        dz = df(z,_i)
+                        dz = df(z,_i, loud)
                     except OverflowError:
                         pass
                     try:
@@ -94,28 +87,27 @@ def render(start, stop, jobID):
                     i+=1
                 shadow = int((float(i)/float(maxIt))**2 * 255.0)
                 image.putpixel((x, y), (255-shadow, 255, shadow*2))
-            print("\t"*(jobID-1),jobID,": ",frame,"/",stop," ~ ",round(y/imgy*100),"%",end="\r",flush=True)
+        q[jobID-1] = ("{}: {}/{}".format(jobID,frame,stop,))
         image.convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
         # sample += Sstep
         _i+=Mstep
     return str(jobID)+" done."
 
-results = []   
-def collect_results(result):
-    results.extend(result)
-
 if __name__ == '__main__':
     cores = cpu_count()
     pool = Pool(processes=cores) 
+    q = Manager().list(['']*cores)
     print(frames,"frames over",cores,"cores")
-    
+    res = None
     for job in range(cores):
         start = math.ceil(job*frames/cores)
         stop = math.floor((job+1)*frames/cores)
-        pool.apply_async(render, (start,stop,job+1,))
-        # print(res.get())
+        res = pool.apply_async(render, (start,stop,job+1,q,))
     pool.close()
+    while not res.ready():
+        print(" | ".join(q),end="\r")
     pool.join()
-    pool.terminate()
+    pool.terminate()    
+    
     image.convert("RGB").save(folder+"/_0.tiff", "PNG")
     
