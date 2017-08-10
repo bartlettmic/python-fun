@@ -41,7 +41,7 @@ eps = 1e-2 # max error allowed
 
 fps = 60.0  # Frames per second
 Mstep = 0.01    #Size to step through f() and/or df() each frame
-frames = int(fps*len(song) / 1000.0) #total frames to be rendered
+frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
 # Create a smaller array with just the audio levels we'll be referencing,
