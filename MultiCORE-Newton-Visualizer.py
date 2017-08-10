@@ -17,7 +17,7 @@ sampleSize = len(samples)
 def f(z,_i, loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(2*z**(1+3*(loudness**2))))
 def df(z,_i, loudness):
-    return 8*z**(3+_i)-(16)*z**(15)-(1+loudness)
+    return 8*z**(3+_i)-(16)*z**(15)-1
 
 # Record the functions used in the directory name
 funcs = []
@@ -29,8 +29,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 200 #Image dimensions
-imgy = 200
+imgx = 1000 #Image dimensions
+imgy = 1000
 image = Image.new("HSV", (imgx, imgy))
 
 xa = ya = -1.0 # Domain of graph, scaled to dimensions
@@ -40,7 +40,7 @@ maxIt = 40 # max iterations allowed
 eps = 1e-2 # max error allowed
 
 fps = 60.0  # Frames per second
-Mstep = 0.01    #Size to step through f() and/or df() each frame
+Mstep = 0.005    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -61,6 +61,7 @@ def render(start, stop, jobID,q):
     # sample = start*Sstep
     _i = start*Mstep
     for frame in range(start,stop):
+        q[jobID-1] = ("{}: {}/{}".format(jobID,frame,stop))
         # loud=samples[int(sample)]/song.maxs
         loud = vols[frame]/maxVol
         for y in range(imgy):
@@ -87,10 +88,10 @@ def render(start, stop, jobID,q):
                     i+=1
                 shadow = int((float(i)/float(maxIt))**2 * 255.0)
                 image.putpixel((x, y), (255-shadow, 255, shadow*2))
-        q[jobID-1] = ("{}: {}/{}".format(jobID,frame,stop,))
         image.convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
         # sample += Sstep
         _i+=Mstep
+    q[jobID-1] = ("{}: Finished".format(jobID))
     return str(jobID)+" done."
 
 if __name__ == '__main__':
