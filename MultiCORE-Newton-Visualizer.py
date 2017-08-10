@@ -2,6 +2,7 @@
 from pydub import AudioSegment
 from PIL import Image
 from multiprocessing import Process, Pool, Manager, cpu_count
+from time import sleep
 import math, cmath, sys, os, inspect, re
 
 # Mutual parameters across all processes
@@ -14,23 +15,23 @@ samples = song.get_array_of_samples()
 sampleSize = len(samples)
 
 #f(z) and df(z) to be used in newtonion iteration
-def f(z,_i, loudness):
-    return abs(z**(2+_i))-z**16-1+cmath.log(abs(2*z**(1+3*(loudness**2))))
-def df(z,_i, loudness):
-    return 8*z**(3+_i)-(16)*z**(15)-1
+def f(z,_i,loudness):
+    return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(0.5+2*(loudness**0.5))))
+def df(z,_i,loudness):
+    return 8*z**(3)-(16)*z**(15)-1
 
 # Record the functions used in the directory name
 funcs = []
 for _f in [f, df]:
-    funcs.append(re.split(r'\s+|\n', inspect.getsource(_f))[3].replace("**","^").replace("*",u"\u00D7").replace("/",u"\u00F7").replace("_i","i").replace("cmath.","").replace("math.",""))
+    funcs.append(' '.join(re.split(r'\n', inspect.getsource(_f))[1].replace("return ","").replace("**","^").replace("*",u"\u00D7").replace("/",u"\u00F7").replace("_i","i").replace("cmath.","").replace("math.","").split()))
 folder = "./render/" + " _ ".join(funcs)
 if not os.path.exists(folder):
     os.makedirs(folder)
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 1000 #Image dimensions
-imgy = 1000
+imgx = 100 #Image dimensions
+imgy = 100
 image = Image.new("HSV", (imgx, imgy))
 
 xa = ya = -1.0 # Domain of graph, scaled to dimensions
@@ -61,9 +62,9 @@ def render(start, stop, jobID,q):
     # sample = start*Sstep
     _i = start*Mstep
     for frame in range(start,stop):
-        q[jobID-1] = ("{}: {}/{}".format(jobID,frame,stop))
+        q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
         # loud=samples[int(sample)]/song.maxs
-        loud = vols[frame]/maxVol
+        loud = abs(vols[frame]/maxVol)
         for y in range(imgy):
             zy = y * (yb - ya) / (imgy - 1) + ya
             for x in range(imgx):
@@ -76,9 +77,11 @@ def render(start, stop, jobID,q):
                     except OverflowError:
                         pass
                     try:
-                        z0 = z - (f(z,_i,loud) / dz) # Newton iteration
+                        z0 = (z - (f(z,_i,loud) / dz)) # Newton iteration
                     except OverflowError:
-                        pass
+                        # pass
+                        i+=1
+                        continue
                     except ZeroDivisionError:
                         i+=1
                         continue
@@ -91,23 +94,25 @@ def render(start, stop, jobID,q):
         image.convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
         # sample += Sstep
         _i+=Mstep
-    q[jobID-1] = ("{}: Finished".format(jobID))
-    return str(jobID)+" done."
+    q[jobID-1] = "{0}:{1}done{1}".format(jobID," "*len(str(stop)))
+    return "\nDone."
 
 if __name__ == '__main__':
     cores = cpu_count()
     pool = Pool(processes=cores) 
     q = Manager().list(['']*cores)
-    print(frames,"frames over",cores,"cores")
+    print(frames,"frames over",cores,"cores;",imgx*imgy*frames,"total pixels.")
     res = None
     for job in range(cores):
-        start = math.ceil(job*frames/cores)
-        stop = math.floor((job+1)*frames/cores)
+        start = math.floor(job*frames/cores)
+        stop = math.ceil((job+1)*frames/cores)
         res = pool.apply_async(render, (start,stop,job+1,q,))
     pool.close()
     while not res.ready():
-        print(" | ".join(q),end="\r")
+        print(" | ".join(q),end="\r",flush=True)
+        sleep(1)
     pool.join()
+    print(res.get())
     pool.terminate()    
     
     image.convert("RGB").save(folder+"/_0.tiff", "PNG")
