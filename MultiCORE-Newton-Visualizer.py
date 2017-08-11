@@ -30,18 +30,20 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 100 #Image dimensions
-imgy = 100
+imgx = 1280 #Image dimensions
+imgy = 720
 image = Image.new("HSV", (imgx, imgy))
 
-xa = ya = -1.0 # Domain of graph, scaled to dimensions
-xb = yb = 1.0
+xa = -1.28
+xb =  1.28
+ya = -1.0 # Domain of graph, scaled to dimensions
+yb =  1.0
 
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 60.0  # Frames per second
-Mstep = 0.02    #Size to step through f() and/or df() each frame
+fps = 120.0  # Frames per second
+Mstep = 0.005    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
