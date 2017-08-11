@@ -18,7 +18,8 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z**(0.5*loudness**0.25)-(16)*z**(15)-1
+    return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
+    # return 8*z**(3+_i)-z**(1+loudness**0.5)-(16)*z**(15)-1
 
 # Record the functions used in the directory name
 funcs = []
@@ -30,20 +31,20 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 1280 #Image dimensions
-imgy = 720
+imgx = 100 #Image dimensions
+imgy = 100
 image = Image.new("HSV", (imgx, imgy))
 
-xa = -1.28
-xb =  1.28
+xa = -1.0
+xb =  1.0
 ya = -1.0 # Domain of graph, scaled to dimensions
 yb =  1.0
 
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 120.0  # Frames per second
-Mstep = 0.005    #Size to step through f() and/or df() each frame
+fps = 30.0  # Frames per second
+Mstep = 0.01    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -58,7 +59,7 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
         maxVol = samples[int(_temp)]
     _temp += Sstep
 del _temp
-maxVol = (maxVol+song.max)/2
+# maxVol = (maxVol+song.max)/2
 
 def render(start, stop, jobID,q):
     # sample = start*Sstep
@@ -113,9 +114,10 @@ if __name__ == '__main__':
     while not res.ready():
         print(" | ".join(q),end="\r",flush=True)
         sleep(1)
-    pool.join()
     print(res.get())
     pool.terminate()    
+    pool.join()
+
     
     image.convert("RGB").save(folder+"/_0.tiff", "PNG")
     
