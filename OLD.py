@@ -16,10 +16,9 @@ sampleSize = len(samples)
 
 #f(z) and df(z) to be used in newtonion iteration
 def f(z,_i,loudness):
-    return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
+    return abs(z**(2))-z**16-1+cmath.log(abs(z**(0.5+2*(loudness**0.5))))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
-    # return 8*z**(3+_i)-z**(1+loudness**0.5)-(16)*z**(15)-1
+    return 8*z**(3+_i)-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
 funcs = []
@@ -35,16 +34,14 @@ imgx = 1000 #Image dimensions
 imgy = 1000
 image = Image.new("HSV", (imgx, imgy))
 
-xa = -1.0
-xb =  1.0
-ya = -1.0 # Domain of graph, scaled to dimensions
-yb =  1.0
+xa = ya = -1.0 # Domain of graph, scaled to dimensions
+xb = yb = 1.0
 
 maxIt = 40 # max iterations allowed
-eps = 0.05 # max error allowed
+eps = 1e-2 # max error allowed
 
-fps = 30.0  # Frames per second
-Mstep = 0.01    #Size to step through f() and/or df() each frame
+fps = 60.0  # Frames per second
+Mstep = 0.005    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -114,10 +111,9 @@ if __name__ == '__main__':
     while not res.ready():
         print(" | ".join(q),end="\r",flush=True)
         sleep(1)
+    pool.join()
     print(res.get())
     pool.terminate()    
-    pool.join()
-
     
     image.convert("RGB").save(folder+"/_0.tiff", "PNG")
     
