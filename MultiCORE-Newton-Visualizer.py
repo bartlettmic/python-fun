@@ -16,9 +16,10 @@ sampleSize = len(samples)
 
 #f(z) and df(z) to be used in newtonion iteration
 def f(z,_i,loudness):
-    return abs(z**(2))-z**16-1+cmath.log(abs(z**(0.5+2*(loudness**0.5))))
+    return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-(16)*z**(15)-(1+loudness)
+    # return 8*z**(3+_i)-(16)*z**(15)-(1+loudness)
+    # return 8*z**(3+_i)-z**(0.5*loudness**0.25)-(16)*z**(15)-1
 
 # Record the functions used in the directory name
 funcs = []
@@ -34,13 +35,15 @@ imgx = 1000 #Image dimensions
 imgy = 1000
 image = Image.new("HSV", (imgx, imgy))
 
-xa = ya = -1.0 # Domain of graph, scaled to dimensions
-xb = yb = 1.0
+xa = -1.28
+xb =  1.28
+ya = -1.0 # Domain of graph, scaled to dimensions
+yb =  1.0
 
 maxIt = 40 # max iterations allowed
-eps = 1e-2 # max error allowed
+eps = 0.05 # max error allowed
 
-fps = 60.0  # Frames per second
+fps = 120.0  # Frames per second
 Mstep = 0.005    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
@@ -56,7 +59,7 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
         maxVol = samples[int(_temp)]
     _temp += Sstep
 del _temp
-# maxVol = (maxVol+song.max)/2
+maxVol = (maxVol+song.max)/2
 
 def render(start, stop, jobID,q):
     # sample = start*Sstep
