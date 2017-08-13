@@ -43,18 +43,18 @@ yb =  1.0
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 30.0  # Frames per second
-Mstep = 0.01    #Size to step through f() and/or df() each frame
+fps = 120.0  # Frames per second
+Mstep = 0.005    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
 # Create a smaller array with just the audio levels we'll be referencing,
 #   and normalize the audio to ratios instead of levels
-vols = []
+vols = [0]
 maxVol = 0;
 _temp = 0
 while _temp < sampleSize: #Float step isn't allowed in for-loop   
-    vols.append(samples[int(_temp)])
+    vols.append((samples[int(_temp)]+vols[-1])/2)
     if samples[int(_temp)] > maxVol:
         maxVol = samples[int(_temp)]
     _temp += Sstep
