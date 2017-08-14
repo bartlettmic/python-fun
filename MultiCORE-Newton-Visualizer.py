@@ -18,8 +18,8 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
-    # return 8*z**(3+_i)-z**(1+loudness**0.5)-(16)*z**(15)-1
+    return 8*z**(3+_i)-(16)*z**(15)-2+loudness
+    # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
 funcs = []
@@ -31,8 +31,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 1000 #Image dimensions
-imgy = 1000
+imgx = 100 #Image dimensions
+imgy = 100
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -43,8 +43,8 @@ yb =  1.0
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 120.0  # Frames per second
-Mstep = 0.005    #Size to step through f() and/or df() each frame
+fps = 30.0  # Frames per second
+Mstep = 0.02    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -54,7 +54,7 @@ vols = [0]
 maxVol = 0;
 _temp = 0
 while _temp < sampleSize: #Float step isn't allowed in for-loop   
-    vols.append((samples[int(_temp)]+vols[-1])/2)
+    vols.append(samples[int(_temp)])
     if samples[int(_temp)] > maxVol:
         maxVol = samples[int(_temp)]
     _temp += Sstep
@@ -63,11 +63,13 @@ del _temp
 
 def render(start, stop, jobID,q):
     # sample = start*Sstep
+    start += 1
+    stop += 1
     _i = start*Mstep
     for frame in range(start,stop):
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
         # loud=samples[int(sample)]/song.maxs
-        loud = abs(vols[frame]/maxVol)
+        loud = abs((vols[frame] + vols[frame-1]/2)/maxVol)
         for y in range(imgy):
             zy = y * (yb - ya) / (imgy - 1) + ya
             for x in range(imgx):
@@ -115,8 +117,8 @@ if __name__ == '__main__':
         print(" | ".join(q),end="\r",flush=True)
         sleep(1)
     print(res.get())
-    pool.terminate()    
     pool.join()
+    pool.terminate()    
 
     
     image.convert("RGB").save(folder+"/_0.tiff", "PNG")
