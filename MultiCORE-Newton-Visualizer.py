@@ -43,7 +43,7 @@ yb =  1.0
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 1.0  # Frames per second
+fps = 60.0  # Frames per second
 Mstep = 0.01    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
