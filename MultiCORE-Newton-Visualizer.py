@@ -2,7 +2,7 @@
 from pydub import AudioSegment
 from PIL import Image
 from multiprocessing import Process, Pool, Manager, cpu_count
-from time import sleep
+from time import sleep, time
 import math, cmath, sys, os, inspect, re
 
 # Mutual parameters across all processes
@@ -18,7 +18,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-(16)*z**(15)-2+loudness
+    return 8*z**(3+_i)-z-(16)*z**(15)-1.5+loudness
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
@@ -31,8 +31,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 100 #Image dimensions
-imgy = 100
+imgx = 80 #Image dimensions
+imgy = 80
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -43,14 +43,14 @@ yb =  1.0
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 30.0  # Frames per second
-Mstep = 0.02    #Size to step through f() and/or df() each frame
+fps = 60.0  # Frames per second
+Mstep = 0.01    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
 # Create a smaller array with just the audio levels we'll be referencing,
 #   and normalize the audio to ratios instead of levels
-vols = [0]
+vols = []
 maxVol = 0;
 _temp = 0
 while _temp < sampleSize: #Float step isn't allowed in for-loop   
@@ -63,13 +63,22 @@ del _temp
 
 def render(start, stop, jobID,q):
     # sample = start*Sstep
-    start += 1
-    stop += 1
     _i = start*Mstep
+    loud = 0
     for frame in range(start,stop):
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
+
         # loud=samples[int(sample)]/song.maxs
-        loud = abs((vols[frame] + vols[frame-1]/2)/maxVol)
+
+        if loud < abs((vols[frame])/maxVol):
+            loud = abs((vols[frame])/maxVol)
+        else:
+            loud = (loud + abs((vols[frame])/maxVol))/2.0
+
+        # loud = abs((vols[frame])/maxVol)
+        
+        # loud = abs((vols[frame] + vols[frame-1]/2)/maxVol)
+        
         for y in range(imgy):
             zy = y * (yb - ya) / (imgy - 1) + ya
             for x in range(imgx):
@@ -107,6 +116,7 @@ if __name__ == '__main__':
     pool = Pool(processes=cores) 
     q = Manager().list(['']*cores)
     print(frames,"frames over",cores,"cores;",imgx*imgy*frames,"total pixels.")
+    _time = time())
     res = None
     for job in range(cores):
         start = math.floor(job*frames/cores)
@@ -119,7 +129,6 @@ if __name__ == '__main__':
     print(res.get())
     pool.join()
     pool.terminate()    
-
-    
     image.convert("RGB").save(folder+"/_0.tiff", "PNG")
+    print("Job took",time()-_time)
     
