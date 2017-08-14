@@ -43,7 +43,7 @@ yb =  1.0
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 60.0  # Frames per second
+fps = 1.0  # Frames per second
 Mstep = 0.01    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     pool = Pool(processes=cores) 
     q = Manager().list(['']*cores)
     print(frames,"frames over",cores,"cores;",imgx*imgy*frames,"total pixels.")
-    _time = time())
+    _time = time()
     res = None
     for job in range(cores):
         start = math.floor(job*frames/cores)
@@ -130,5 +130,7 @@ if __name__ == '__main__':
     pool.join()
     pool.terminate()    
     image.convert("RGB").save(folder+"/_0.tiff", "PNG")
-    print("Job took",time()-_time)
+    m, s = divmod(time()-_time, 60)
+    h, m = divmod(m, 60)
+    print("Job took %d:%02d:%02d to complete" % (h, m, s))
     
