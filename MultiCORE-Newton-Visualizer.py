@@ -24,7 +24,7 @@ def df(z,_i,loudness):
 # Record the functions used in the directory name
 funcs = []
 for _f in [f, df]:
-    funcs.append(' '.join(re.split(r'\n', inspect.getsource(_f))[1].replace("return ","").replace("**","^").replace("*",u"\u00D7").replace("/",u"\u00F7").replace("_i","i").replace("cmath.","").replace("math.","").split()))
+    funcs.append(' '.join(re.split(r'\n', inspect.getsource(_f))[1].replace("return ","").replace("**","^").replace("*"," x ").replace("/"," div ").replace("_i","i").replace("cmath.","").replace("math.","").split()))
 folder = "./render/" + " _ ".join(funcs)
 if not os.path.exists(folder):
     os.makedirs(folder)
