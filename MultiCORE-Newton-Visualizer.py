@@ -18,7 +18,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z-(16)*z**(15)-1.5+loudness
+    return 8*z**(3+_i)-z-(16)*z**(15)-1.5-0.5*loudness
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
@@ -43,7 +43,7 @@ yb =  1.0
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 60.0  # Frames per second
+fps = 30.0  # Frames per second
 Mstep = 0.01    #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
@@ -64,18 +64,20 @@ del _temp
 def render(start, stop, jobID,q):
     # sample = start*Sstep
     _i = start*Mstep
-    loud = 0
+    loud = vols[start]
     for frame in range(start,stop):
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
         # loud=samples[int(sample)]/song.maxs
 
-        if loud < abs((vols[frame])/maxVol):
-            loud = abs((vols[frame])/maxVol)
-        else:
-            loud = (loud + abs((vols[frame])/maxVol))/2.0
+        # if loud < abs((vols[frame])/maxVol):
+        #     loud = abs((vols[frame])/maxVol)
+        # else:
+        #     loud = (loud + abs((vols[frame])/maxVol))/2.0
 
         # loud = abs((vols[frame])/maxVol)
+        
+        loud = abs(loud+abs((vols[frame])/maxVol))/2.0
         
         # loud = abs((vols[frame] + vols[frame-1]/2)/maxVol)
         
@@ -103,8 +105,17 @@ def render(start, stop, jobID,q):
                         break
                     z = z0
                     i+=1
-                shadow = int((float(i)/float(maxIt))**2 * 255.0)
-                image.putpixel((x, y), (255-shadow, 255, shadow*2))
+                
+                shadow = float(i)/float(maxIt)
+                
+                hue = (1-shadow**2)*255
+                sat = ((loud*shadow)**0.5)*255
+                lum = 255*shadow**3
+
+                # lum = max(shadow,shadow*loud)*255
+                # lum = max((max(0,shadow-0.25)/0.25)*loud**0.5,shadow)*255
+
+                image.putpixel((x, y), (int(hue), int(sat), int(lum)))
         image.convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
         # sample += Sstep
         _i+=Mstep
