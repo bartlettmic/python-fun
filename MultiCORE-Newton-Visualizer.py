@@ -18,7 +18,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z-(16)*z**(15)-(1+0.3*loudness)
+    return 8*z**(3+_i)-z-(16)*z**(15)-(1.5-0.5*loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
@@ -31,8 +31,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 80 #Image dimensions
-imgy = 80
+imgx = 500 #Image dimensions
+imgy = 500
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -44,7 +44,7 @@ maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
 fps = 30.0  # Frames per second
-Mstep = 0.01    #Size to step through f() and/or df() each frame
+Mstep = 0.01   #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -65,6 +65,7 @@ def render(start, stop, jobID,q):
     # sample = start*Sstep
     _i = start*Mstep
     loud = abs(vols[start]/maxVol)
+    halfy = int(imgy/2)
     for frame in range(start,stop):
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
@@ -81,11 +82,14 @@ def render(start, stop, jobID,q):
         
         # loud = abs((vols[frame] + vols[frame-1]/2)/maxVol)
         
-        for y in range(imgy):
+        #new_im.paste(im, (x_offset,0))
+        #.transpose(Image.FLIP_LEFT_RIGHT)  
+        
+        for y in range(halfy):
             zy = y * (yb - ya) / (imgy - 1) + ya
             for x in range(imgx):
                 zx = x * (xb - xa) / (imgx - 1) + xa
-                z=complex(zy,zx)
+                z=complex(zx,zy)
                 i=0
                 while i < maxIt:
                     try:
@@ -109,14 +113,15 @@ def render(start, stop, jobID,q):
                 shadow = float(i)/float(maxIt)
                 
                 hue = (1-shadow**2)*255
-                sat = ((loud*shadow)**0.5)*255
+                sat = (loud**0.5)*255
                 lum = 255*shadow**3
 
                 # lum = max(shadow,shadow*loud)*255
                 # lum = max((max(0,shadow-0.25)/0.25)*loud**0.5,shadow)*255
 
                 image.putpixel((x, y), (int(hue), int(sat), int(lum)))
-        image.convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
+            
+        image.paste(image.crop((0, 0, imgx, halfy)).transpose(Image.FLIP_TOP_BOTTOM),(0,halfy)).transpose(Image.ROTATE_270).convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
         # sample += Sstep
         _i+=Mstep
     q[jobID-1] = "{0}:{1}done{1}".format(jobID," "*len(str(stop)))
