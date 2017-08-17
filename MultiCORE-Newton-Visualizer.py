@@ -31,14 +31,14 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 250 #Image dimensions
-imgy = 250
+imgx = 1080 #Image dimensions
+imgy = 1920
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
 xb =  1.0
-ya = -1.0 # Domain of graph, scaled to dimensions
-yb =  1.0
+ya = -2.0 # Domain of graph, scaled to dimensions
+yb =  2.0
 
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
@@ -49,9 +49,8 @@ frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
 # Create a smaller array with just the audio levels we'll be referencing,
-#   and normalize the audio to ratios instead of levels
 vols = []
-maxVol = 0;
+maxVol = 0
 _temp = 0
 while _temp < sampleSize: #Float step isn't allowed in for-loop   
     vols.append(abs(samples[int(_temp)]))
@@ -120,9 +119,6 @@ def render(start, stop, jobID,q):
                 image.putpixel((x, y), col)
                 image.putpixel((x, imgy-y-1), col)
             
-        # im2 = image.crop((0, 0, imgx, halfy)).transpose(Image.FLIP_TOP_BOTTOM)
-        # image.paste(im2,(0,halfy))
-        
         image.transpose(Image.ROTATE_270).convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
         # sample += Sstep
         _i+=Mstep
