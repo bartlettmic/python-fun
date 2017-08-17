@@ -31,8 +31,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 1000 #Image dimensions
-imgy = 1000
+imgx = 250 #Image dimensions
+imgy = 250
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -54,7 +54,7 @@ vols = []
 maxVol = 0;
 _temp = 0
 while _temp < sampleSize: #Float step isn't allowed in for-loop   
-    vols.append(samples[int(_temp)])
+    vols.append(abs(samples[int(_temp)]))
     if samples[int(_temp)] > maxVol:
         maxVol = samples[int(_temp)]
     _temp += Sstep
@@ -64,17 +64,17 @@ del _temp
 def render(start, stop, jobID,q):
     # sample = start*Sstep
     _i = start*Mstep
-    loud = abs(vols[start]/maxVol)
+    loud = vols[start]/maxVol
     halfy = int(imgy/2)
     for frame in range(start,stop):
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
         # loud=samples[int(sample)]/song.maxs
 
-        if loud < abs((vols[frame])/maxVol):
-            loud = abs((vols[frame])/maxVol)
+        if loud < (vols[frame]/maxVol):
+            loud = (vols[frame]/maxVol)
         else:
-            loud = abs(loud + abs((vols[frame])/maxVol))/2.0
+            loud = (loud + (vols[frame])/maxVol)/2.0
 
         # loud = abs((vols[frame])/maxVol)
         
@@ -116,13 +116,12 @@ def render(start, stop, jobID,q):
                 sat = (loud**0.5)*255
                 lum = 255*shadow**3
 
-                # lum = max(shadow,shadow*loud)*255
-                # lum = max((max(0,shadow-0.25)/0.25)*loud**0.5,shadow)*255
-
-                image.putpixel((x, y), (int(hue), int(sat), int(lum)))
+                col = (int(hue), int(sat), int(lum))
+                image.putpixel((x, y), col)
+                image.putpixel((x, imgy-y-1), col)
             
-        im2 = image.crop((0, 0, imgx, halfy)).transpose(Image.FLIP_TOP_BOTTOM)
-        image.paste(im2,(0,halfy))
+        # im2 = image.crop((0, 0, imgx, halfy)).transpose(Image.FLIP_TOP_BOTTOM)
+        # image.paste(im2,(0,halfy))
         
         image.transpose(Image.ROTATE_270).convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
         # sample += Sstep
