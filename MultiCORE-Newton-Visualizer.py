@@ -31,8 +31,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 500 #Image dimensions
-imgy = 500
+imgx = 1000 #Image dimensions
+imgy = 1000
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -44,7 +44,7 @@ maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
 fps = 30.0  # Frames per second
-Mstep = 0.01   #Size to step through f() and/or df() each frame
+Mstep = 0.005   #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -121,7 +121,10 @@ def render(start, stop, jobID,q):
 
                 image.putpixel((x, y), (int(hue), int(sat), int(lum)))
             
-        image.paste(image.crop((0, 0, imgx, halfy)).transpose(Image.FLIP_TOP_BOTTOM),(0,halfy)).transpose(Image.ROTATE_270).convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
+        im2 = image.crop((0, 0, imgx, halfy)).transpose(Image.FLIP_TOP_BOTTOM)
+        image.paste(im2,(0,halfy))
+        
+        image.transpose(Image.ROTATE_270).convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
         # sample += Sstep
         _i+=Mstep
     q[jobID-1] = "{0}:{1}done{1}".format(jobID," "*len(str(stop)))
