@@ -40,11 +40,11 @@ xb =  1.0
 ya = -2.0 # Domain of graph, scaled to dimensions
 yb =  2.0
 
-maxIt = 40 # max iterations allowed
+maxIt = 50 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 30.0  # Frames per second
-Mstep = 0.005   #Size to step through f() and/or df() each frame
+fps = 60.0  # Frames per second
+Mstep = 0.001   #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -54,8 +54,8 @@ maxVol = 0
 _temp = 0
 while _temp < sampleSize: #Float step isn't allowed in for-loop   
     vols.append(abs(samples[int(_temp)]))
-    if samples[int(_temp)] > maxVol:
-        maxVol = samples[int(_temp)]
+    if vols[-1] > maxVol:
+        maxVol = vols[-1]
     _temp += Sstep
 del _temp
 # maxVol = (maxVol+song.max)/2
@@ -70,19 +70,16 @@ def render(start, stop, jobID,q):
 
         # loud=samples[int(sample)]/song.maxs
 
-        if loud < (vols[frame]/maxVol):
-            loud = (vols[frame]/maxVol)
-        else:
-            loud = (loud + (vols[frame])/maxVol)/2.0
+        # if loud < (vols[frame]/maxVol):
+        loud = (vols[frame]/maxVol)
+        # else:
+            # loud = (loud + (vols[frame])/maxVol)/2.0
 
         # loud = abs((vols[frame])/maxVol)
         
         # loud = abs(loud+abs((vols[frame])/maxVol))/2.0
         
         # loud = abs((vols[frame] + vols[frame-1]/2)/maxVol)
-        
-        #new_im.paste(im, (x_offset,0))
-        #.transpose(Image.FLIP_LEFT_RIGHT)  
         
         for y in range(halfy):
             zy = y * (yb - ya) / (imgy - 1) + ya
