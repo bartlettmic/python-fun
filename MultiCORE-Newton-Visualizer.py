@@ -18,7 +18,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z-(16)*z**(15)-(1.5-0.5*loudness)
+    return 8*z**(3+_i)-z-(16)*z**(15)-(1.75-0.75*loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
@@ -40,10 +40,10 @@ xb =  1.0
 ya = -2.0 # Domain of graph, scaled to dimensions
 yb =  2.0
 
-maxIt = 40 # max iterations allowed
+maxIt = 45 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 30.0  # Frames per second
+fps = 60.0  # Frames per second
 Mstep = 0.005   #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
@@ -70,10 +70,10 @@ def render(start, stop, jobID,q):
 
         # loud=samples[int(sample)]/song.maxs
 
-        if loud < (vols[frame]/maxVol):
-            loud = (vols[frame]/maxVol)
-        else:
-            loud = (loud + (vols[frame])/maxVol)/2.0
+        # if loud < (vols[frame]/maxVol):
+        loud = (vols[frame]/maxVol)**0.5
+        # else:
+            # loud = (loud + (vols[frame])/maxVol)/2.0
 
         # loud = abs((vols[frame])/maxVol)
         
