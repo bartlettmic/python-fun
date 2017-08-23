@@ -54,8 +54,8 @@ maxVol = 0
 _temp = 0
 while _temp < sampleSize: #Float step isn't allowed in for-loop   
     vols.append(abs(samples[int(_temp)]))
-    if samples[int(_temp)] > maxVol:
-        maxVol = samples[int(_temp)]
+    if vols[-1] > maxVol:
+        maxVol = vols[-1]
     _temp += Sstep
 del _temp
 # maxVol = (maxVol+song.max)/2
@@ -80,9 +80,6 @@ def render(start, stop, jobID,q):
         # loud = abs(loud+abs((vols[frame])/maxVol))/2.0
         
         # loud = abs((vols[frame] + vols[frame-1]/2)/maxVol)
-        
-        #new_im.paste(im, (x_offset,0))
-        #.transpose(Image.FLIP_LEFT_RIGHT)  
         
         for y in range(halfy):
             zy = y * (yb - ya) / (imgy - 1) + ya
