@@ -18,7 +18,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z-(16)*z**(15)-(1.5-0.5*loudness)
+    return 8*z**(3+_i)-z-(16)*z**(15)-(2-1*loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
@@ -73,7 +73,7 @@ def render(start, stop, jobID,q):
         # if loud < (vols[frame]/maxVol):
         loud = (vols[frame]/maxVol)**0.5
         # else:
-            # loud = (loud + (vols[frame])/maxVol)/2.0
+            # loud = (loud + ((vols[frame])/maxVol)**0.5)/2.0
 
         # loud = abs((vols[frame])/maxVol)
         
