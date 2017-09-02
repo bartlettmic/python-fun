@@ -18,7 +18,8 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z-(16)*z**(15)-(2-1*loudness)
+    return 8*z**(3+_i)-z-(16)*z**(15)-1
+    # return 8*z**(3+_i)-z-(16)*z**(15)-(2-1*loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
@@ -31,8 +32,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 1080 #Image dimensions
-imgy = 1920
+imgx = 108 #Image dimensions
+imgy = 192
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -43,7 +44,7 @@ yb =  2.0
 maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 60.0  # Frames per second
+fps = 15.0  # Frames per second
 Mstep = 0.003   #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
@@ -108,9 +109,9 @@ def render(start, stop, jobID,q):
                 
                 shadow = float(i)/float(maxIt)
                 
-                hue = (1-shadow**2)*255
-                sat = (loud**0.5)*255
-                lum = 255*shadow**3
+                hue = (1-shadow**(1+loud))*255
+                sat = loud*255
+                lum = 255*shadow**(3-(-2*loud))
 
                 col = (int(hue), int(sat), int(lum))
                 image.putpixel((x, y), col)
