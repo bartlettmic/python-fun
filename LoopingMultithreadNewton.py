@@ -5,6 +5,7 @@ from multiprocessing import Process, Pool, Manager, cpu_count
 from time import sleep, time
 import math, cmath, sys, os, inspect, re
 
+
 # Mutual parameters across all processes
 filename = "./"+sys.argv[1]
 extension = sys.argv[1].split('.')[1]
@@ -18,8 +19,8 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z-(16)*z**(15)-1
-    # return 8*z**(3+_i)-z-(16)*z**(15)-(2-1*loudness)
+    # return 8*z**(3+_i)-z-(16)*z**(15)-1
+    return 8*z**(3+_i)-z-(16)*z**(15)-(2-1*loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
@@ -32,8 +33,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 1080 #Image dimensions
-imgy = 1920
+imgx = 108 #Image dimensions
+imgy = 192
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -49,6 +50,9 @@ Mstep = 0.003   #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
+# print(multiplicative(samples, sampleSize/(len(song) / 1000.0), 1, 0.5))
+
+
 # Create a smaller array with just the audio levels we'll be referencing,
 vols = []
 maxVol = 0
@@ -63,18 +67,21 @@ del _temp
 
 def render(start, stop, jobID,q):
     # sample = start*Sstep
-    _i = start*Mstep
+    # _i = start*Mstep
+    # _i = 10*math.sin(start*math.pi/frames)
     loud = vols[start]/maxVol
     halfy = int(imgy/2)
     for frame in range(start,stop):
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
+        _i =11(math.sin(frame*math.pi/frames)**3)
+        
         # loud=samples[int(sample)]/song.maxs
 
-        # if loud < (vols[frame]/maxVol):
-        loud = (vols[frame]/maxVol)**0.5
-        # else:
-            # loud = (loud + ((vols[frame])/maxVol)**0.5)/2.0
+        if loud < (vols[frame]/maxVol):
+            loud = (vols[frame]/maxVol)**0.5
+        else:
+            loud = (loud + ((vols[frame])/maxVol)**0.5)/2.0
 
         # loud = abs((vols[frame])/maxVol)
         
@@ -119,7 +126,7 @@ def render(start, stop, jobID,q):
             
         image.transpose(Image.ROTATE_270).convert("RGB").save(folder+"/%04d.png" % frame, "PNG")
         # sample += Sstep
-        _i+=Mstep
+        # _i+=Mstep
     q[jobID-1] = "{0}:{1}done{1}".format(jobID," "*len(str(stop)))
     return "\nDone."
 
