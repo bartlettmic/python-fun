@@ -19,8 +19,8 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
+    return 8*z**(3+_i)-z-(16)*z**(15)-(2-loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
-    return 8*z**(3+_i)-z-(16)*z**(15)-(2-1*loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
@@ -33,8 +33,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 108 #Image dimensions
-imgy = 192
+imgx = 1080 #Image dimensions
+imgy = 1920
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -57,38 +57,45 @@ Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 vols = []
 maxVol = 0
 _temp = 0
+
 while _temp < sampleSize: #Float step isn't allowed in for-loop   
     vols.append(abs(samples[int(_temp)]))
-    if vols[-1] > maxVol:
-        maxVol = vols[-1]
     _temp += Sstep
 del _temp
 # maxVol = (maxVol+song.max)/2
 
+N = 50
+cumsum, moving_aves = [0], []
+
+for i, x in enumerate(vols, 1):
+    cumsum.append(cumsum[i-1] + x)
+    if i>=N:
+        moving_ave = (cumsum[i] - cumsum[i-N])/N
+        #can do stuff with moving_ave here
+        moving_aves.append(moving_ave)
+
+while (len(moving_aves) < len(vols)):
+    moving_aves.append(moving_aves[-1])
+
+vols = moving_aves
+maxVol = max(vols)
+
+del cumsum, moving_aves, N, Sstep
+
 def render(start, stop, jobID,q):
-    # sample = start*Sstep
-    # _i = start*Mstep
-    # _i = 10*math.sin(start*math.pi/frames)
     loud = vols[start]/maxVol
     halfy = int(imgy/2)
     for frame in range(start,stop):
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i =11(math.sin(frame*math.pi/frames)**3)
+        _i =3*(math.sin(frame*math.pi/frames)**3)
         
-        # loud=samples[int(sample)]/song.maxs
+        # if loud < (vols[frame]/maxVol):
+        # loud = (vols[frame]/maxVol)**0.5
+        loud = vols[frame]/maxVol
+        # else:
+            # loud = (loud + ((vols[frame])/maxVol)**0.5)/2.0
 
-        if loud < (vols[frame]/maxVol):
-            loud = (vols[frame]/maxVol)**0.5
-        else:
-            loud = (loud + ((vols[frame])/maxVol)**0.5)/2.0
-
-        # loud = abs((vols[frame])/maxVol)
-        
-        # loud = abs(loud+abs((vols[frame])/maxVol))/2.0
-        
-        # loud = abs((vols[frame] + vols[frame-1]/2)/maxVol)
-        
         for y in range(halfy):
             zy = y * (yb - ya) / (imgy - 1) + ya
             for x in range(imgx):
