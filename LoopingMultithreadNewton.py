@@ -33,8 +33,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 1080 #Image dimensions
-imgy = 1920
+imgx = 108 #Image dimensions
+imgy = 192
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -42,7 +42,7 @@ xb =  1.0
 ya = -2.0 # Domain of graph, scaled to dimensions
 yb =  2.0
 
-maxIt = 40 # max iterations allowed
+maxIt = 30 # max iterations allowed
 eps = 0.05 # max error allowed
 
 fps = 60.0  # Frames per second
@@ -86,6 +86,8 @@ def render(start, stop, jobID,q):
     loud = vols[start]/maxVol
     halfy = int(imgy/2)
     for frame in range(start,stop):
+        if os.path.exists(folder+"/%04d.png" % frame):
+            continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
         _i =3*(math.sin(frame*math.pi/frames)**3)
