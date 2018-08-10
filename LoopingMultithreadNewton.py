@@ -140,7 +140,7 @@ def render(start, stop, jobID,q):
     return "\nDone."
 
 if __name__ == '__main__':
-    cores = cpu_count()
+    cores = cpu_count()*8
     pool = Pool(processes=cores) 
     q = Manager().list(['']*cores)
     print(frames,"frames over",cores,"cores;",imgx*imgy*frames,"total pixels.")
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     pool.close()
     while not res.ready():
         print(" | ".join(q),end="\r",flush=True)
-        sleep(1)
+        sleep(10)
     print(res.get())
     pool.join()
     pool.terminate()    
