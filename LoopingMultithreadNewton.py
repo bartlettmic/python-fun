@@ -19,14 +19,14 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return 8*z**(3+_i)-z-(16)*z**(15)-(2-loudness)
+    return (8+loudness)*z**(3+(2*_i))-(16)*z**(15)-(2-loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
 # Record the functions used in the directory name
 funcs = []
 for _f in [f, df]:
-    funcs.append(' '.join(re.split(r'\n', inspect.getsource(_f))[1].replace("return ","").replace("**","^").replace("*"," x ").replace("/"," div ").replace("_i","i").replace("cmath.","").replace("math.","").split()))
+    funcs.append(' '.join(re.split(r'\n', inspect.getsource(_f))[1].replace("return ","").replace("**","^").replace("*"," x ").replace("/"," div ").replace("33**_i","i").replace("cmath.","").replace("math.","").split()))
 folder = "./render/" + " _ ".join(funcs)
 if not os.path.exists(folder):
     os.makedirs(folder)
@@ -38,15 +38,14 @@ imgy = 1920
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
-xb =  1.0
-ya = -2.0 # Domain of graph, scaled to dimensions
-yb =  2.0
+xb =  1.2
+ya = -1.8 # Domain of graph, scaled to dimensions
+yb =  1.8
 
-maxIt = 40 # max iterations allowed
+maxIt = 30 # max iterations allowed
 eps = 0.05 # max error allowed
 
 fps = 60.0  # Frames per second
-Mstep = 0.003   #Size to step through f() and/or df() each frame
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -64,7 +63,7 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
 del _temp
 # maxVol = (maxVol+song.max)/2
 
-N = 50
+N = 30
 cumsum, moving_aves = [0], []
 
 for i, x in enumerate(vols, 1):
@@ -86,13 +85,15 @@ def render(start, stop, jobID,q):
     loud = vols[start]/maxVol
     halfy = int(imgy/2)
     for frame in range(start,stop):
+        if os.path.exists(folder+"/%04d.png" % frame):
+            continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i =3*(math.sin(frame*math.pi/frames)**3)
+        _i =3*(math.sin(frame*math.pi/frames))
         
         # if loud < (vols[frame]/maxVol):
-        # loud = (vols[frame]/maxVol)**0.5
-        loud = vols[frame]/maxVol
+        loud = (vols[frame]/maxVol)**0.5
+        #loud = vols[frame]/maxVol
         # else:
             # loud = (loud + ((vols[frame])/maxVol)**0.5)/2.0
 
@@ -138,7 +139,7 @@ def render(start, stop, jobID,q):
     return "\nDone."
 
 if __name__ == '__main__':
-    cores = cpu_count()
+    cores = cpu_count()*8
     pool = Pool(processes=cores) 
     q = Manager().list(['']*cores)
     print(frames,"frames over",cores,"cores;",imgx*imgy*frames,"total pixels.")
@@ -151,7 +152,7 @@ if __name__ == '__main__':
     pool.close()
     while not res.ready():
         print(" | ".join(q),end="\r",flush=True)
-        sleep(1)
+        sleep(10)
     print(res.get())
     pool.join()
     pool.terminate()    
@@ -160,3 +161,4 @@ if __name__ == '__main__':
     h, m = divmod(m, 60)
     print("Job took %d:%02d:%02d to complete" % (h, m, s))
     
+

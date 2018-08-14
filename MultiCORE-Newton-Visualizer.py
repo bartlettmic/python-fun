@@ -41,7 +41,7 @@ xb =  1.0
 ya = -2.0 # Domain of graph, scaled to dimensions
 yb =  2.0
 
-maxIt = 40 # max iterations allowed
+maxIt = 30 # max iterations allowed
 eps = 0.05 # max error allowed
 
 fps = 60.0  # Frames per second
@@ -67,6 +67,8 @@ def render(start, stop, jobID,q):
     loud = vols[start]/maxVol
     halfy = int(imgy/2)
     for frame in range(start,stop):
+        if os.path.exists(folder+"/%04d.png" % frame):
+            continue	
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
         # loud=samples[int(sample)]/song.maxs
@@ -124,7 +126,7 @@ def render(start, stop, jobID,q):
     return "\nDone."
 
 if __name__ == '__main__':
-    cores = cpu_count()
+    cores = cpu_count()*8
     pool = Pool(processes=cores) 
     q = Manager().list(['']*cores)
     print(frames,"frames over",cores,"cores;",imgx*imgy*frames,"total pixels.")
@@ -137,7 +139,7 @@ if __name__ == '__main__':
     pool.close()
     while not res.ready():
         print(" | ".join(q),end="\r",flush=True)
-        sleep(1)
+        sleep(10)
     print(res.get())
     pool.join()
     pool.terminate()    
