@@ -33,8 +33,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 1080 #Image dimensions
-imgy = 1920
+imgx = 108 #Image dimensions
+imgy = 192
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
