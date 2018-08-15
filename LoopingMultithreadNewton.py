@@ -17,7 +17,7 @@ sampleSize = len(samples)
 
 #f(z) and df(z) to be used in newtonion iteration
 def f(z,_i,loudness):
-    return abs(z**(2+_i))-z**16-1+cmath.log(abs(z**(4)))
+    return abs(z**(2.55+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
     return (8+loudness)*z**(3+(2*_i))-(16)*z**(15)-(2-loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
@@ -63,7 +63,7 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
 del _temp
 # maxVol = (maxVol+song.max)/2
 
-N = 20
+N = 30
 cumsum, moving_aves = [0], []
 
 for i, x in enumerate(vols, 1):
@@ -89,7 +89,7 @@ def render(start, stop, jobID,q):
             continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i =(math.sin(frame*math.pi/frames))
+        _i =(0.9*math.sin(frame*math.pi/frames))
         
         # if loud < (vols[frame]/maxVol):
         loud = (vols[frame]/maxVol)**0.5
