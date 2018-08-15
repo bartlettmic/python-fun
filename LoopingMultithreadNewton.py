@@ -45,7 +45,7 @@ yb =  1.8
 maxIt = 30 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 30.0  # Frames per second
+fps = 60.0  # Frames per second
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -63,7 +63,7 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
 del _temp
 # maxVol = (maxVol+song.max)/2
 
-N = 40
+N = 20
 cumsum, moving_aves = [0], []
 
 for i, x in enumerate(vols, 1):
@@ -89,7 +89,7 @@ def render(start, stop, jobID,q):
             continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i =3*(math.sin(frame*math.pi/frames))
+        _i =(math.sin(frame*math.pi/frames))
         
         # if loud < (vols[frame]/maxVol):
         loud = (vols[frame]/maxVol)**0.5
