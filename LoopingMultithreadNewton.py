@@ -122,7 +122,7 @@ def render(start, stop, jobID,q):
                     z = z0
                     i+=1
                 
-                shadow = float(i)/float(maxIt) * (255*frame/frames)
+                shadow = float(i)/float(maxIt) * (frame/frames)
                 
                 hue = ((1-shadow**(1+loud))*255) 
                 sat = loud*255
