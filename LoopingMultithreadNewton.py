@@ -63,7 +63,7 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
 del _temp
 # maxVol = (maxVol+song.max)/2
 
-N = 30
+N = 40
 cumsum, moving_aves = [0], []
 
 for i, x in enumerate(vols, 1):
@@ -89,7 +89,7 @@ def render(start, stop, jobID,q):
             continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i =(10*math.sin(frame*math.pi/frames))
+        _i =(0.5*math.sin(frame*math.pi/frames))
         
         # if loud < (vols[frame]/maxVol):
         loud = (vols[frame]/maxVol)**0.5
