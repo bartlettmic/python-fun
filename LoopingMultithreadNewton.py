@@ -89,7 +89,7 @@ def render(start, stop, jobID,q):
             continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i =(0.9*math.sin(frame*math.pi/frames))
+        _i =(math.tan(frame*math.pi/frames))
         
         # if loud < (vols[frame]/maxVol):
         loud = (vols[frame]/maxVol)**0.5
@@ -124,7 +124,7 @@ def render(start, stop, jobID,q):
                 
                 shadow = float(i)/float(maxIt)
                 
-                hue = (1-shadow**(1+loud))*255 + (255*frame/frames)
+                hue = (1-shadow**(1+loud))*255 - (255*frame/frames)
                 sat = loud*255
                 lum = 255*shadow**(3-(-2*loud))
 
