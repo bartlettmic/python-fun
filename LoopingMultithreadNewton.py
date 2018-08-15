@@ -17,7 +17,7 @@ sampleSize = len(samples)
 
 #f(z) and df(z) to be used in newtonion iteration
 def f(z,_i,loudness):
-    return abs(z**(2.55+_i))-z**16-1+cmath.log(abs(z**(4)))
+    return abs(z**(3.05+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
     return (8+loudness)*z**(3+(2*_i))-(16)*z**(15)-(2-loudness)
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
