@@ -45,7 +45,7 @@ yb =  1.8
 maxIt = 30 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 60.0  # Frames per second
+fps = 30.0  # Frames per second
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -63,7 +63,7 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
 del _temp
 # maxVol = (maxVol+song.max)/2
 
-N = 30
+N = 40
 cumsum, moving_aves = [0], []
 
 for i, x in enumerate(vols, 1):
@@ -124,11 +124,11 @@ def render(start, stop, jobID,q):
                 
                 shadow = float(i)/float(maxIt)
                 
-                hue = (1-shadow**(1+loud))*255
+                hue = (1-shadow**(1+loud))*255 + (255*frame/frames)
                 sat = loud*255
                 lum = 255*shadow**(3-(-2*loud))
 
-                col = (int(hue), int(sat), int(lum))
+                col = (int(hue), int(sat), int(lum)) 
                 image.putpixel((x, y), col)
                 image.putpixel((x, imgy-y-1), col)
             
@@ -139,7 +139,7 @@ def render(start, stop, jobID,q):
     return "\nDone."
 
 if __name__ == '__main__':
-    cores = cpu_count()*8
+    cores = cpu_count()*6
     pool = Pool(processes=cores) 
     q = Manager().list(['']*cores)
     print(frames,"frames over",cores,"cores;",imgx*imgy*frames,"total pixels.")
