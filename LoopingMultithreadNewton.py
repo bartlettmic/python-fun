@@ -33,8 +33,8 @@ if not os.path.exists(folder):
 del funcs
 
 # User-defined parameters #####################################################
-imgx = 1080 #Image dimensions
-imgy = 1920
+imgx = 108 #Image dimensions
+imgy = 192
 image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.0
@@ -124,7 +124,7 @@ def render(start, stop, jobID,q):
                 
                 shadow = float(i)/float(maxIt)
                 
-                hue = ((1-shadow**(1+loud))*255)
+                hue = (((1-shadow**(1+loud))*255) + (255*frame/frames)) % 255
                 sat = loud*255
                 lum = 255*shadow**(3-(-2*loud))
 
