@@ -37,8 +37,8 @@ imgx = 108 #Image dimensions
 imgy = 192
 image = Image.new("HSV", (imgx, imgy))
 
-xa = -1.0
-xb =  1.2
+xa = -1.2
+xb =  1.0
 ya = -1.8 # Domain of graph, scaled to dimensions
 yb =  1.8
 
