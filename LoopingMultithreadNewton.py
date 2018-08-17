@@ -19,7 +19,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(3+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return (8)*z**(3+_i)-z-(16)*z**(15)-(2.5-(2*loudness))
+    return (8)*z**(2+_i)-z-(16)*z**(15)-(2-(loudness))
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
@@ -72,7 +72,7 @@ while _temp < sampleSize: #Float step isn't allowed in for-loop
 del _temp
 # maxVol = (maxVol+song.max)/2
 
-N = 40
+N = 20
 cumsum, moving_aves = [0], []
 
 for i, x in enumerate(vols, 1):
