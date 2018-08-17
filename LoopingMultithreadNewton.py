@@ -34,7 +34,7 @@ del funcs
 
 
 # https://www.wolframalpha.com/input/?i=u-(tanh(a*t-a*floor(t)-(a%2F2))%2F(2*tanh(a%2F2))%2B0.5%2Bfloor(t))*(-1)%5Efloor(t%2Fu)+for+a%3D8,+u%3D3,+t%3Dmod(x,2u)-u
-steppiness=6
+steppiness=8
 steps=3
 def continuous_step(i):
     i*=steps*2
@@ -48,8 +48,8 @@ image = Image.new("HSV", (imgx, imgy))
 
 xa = -1.2
 xb =  1.0
-ya = -1.8 # Domain of graph, scaled to dimensions
-yb =  1.8
+ya = -1.5 # Domain of graph, scaled to dimensions
+yb =  1.5
 
 maxIt = 30 # max iterations allowed
 eps = 0.05 # max error allowed
@@ -98,7 +98,7 @@ def render(start, stop, jobID,q):
             continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i = continuous_step((loud+frame/frames)/2)
+        _i = continuous_step(frame/frames)
         # _i =(0.5*math.sin(frame*math.pi/frames))
         
         # if loud < (vols[frame]/maxVol):
