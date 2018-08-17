@@ -19,7 +19,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(3.05+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return (8)*z**(3+(1.75*_i))-(16)*z**(15)-(3-(2*loudness))
+    return (8)*z**(3+(_i))-(16)*z**(15)-(3-(2*loudness))
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
@@ -32,6 +32,8 @@ if not os.path.exists(folder):
     os.makedirs(folder)
 del funcs
 
+
+# https://www.wolframalpha.com/input/?i=u-(tanh(a*t-a*floor(t)-(a%2F2))%2F(2*tanh(a%2F2))%2B0.5%2Bfloor(t))*(-1)%5Efloor(t%2Fu)+for+a%3D8,+u%3D3,+t%3Dmod(x,2u)-u
 steppiness=8
 steps=3
 def continuous_step(i):
@@ -49,10 +51,10 @@ xb =  1.0
 ya = -1.8 # Domain of graph, scaled to dimensions
 yb =  1.8
 
-maxIt = 30 # max iterations allowed
+maxIt = 40 # max iterations allowed
 eps = 0.05 # max error allowed
 
-fps = 60.0  # Frames per second
+fps = 30.0  # Frames per second
 frames = int(math.ceil(fps*len(song) / 1000.0)) #total frames to be rendered
 Sstep = sampleSize/frames   #Step size to synchronize audio-levels with frames
 
@@ -168,5 +170,4 @@ if __name__ == '__main__':
     m, s = divmod(time()-_time, 60)
     h, m = divmod(m, 60)
     print("Job took %d:%02d:%02d to complete" % (h, m, s))
-    
 
