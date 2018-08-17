@@ -32,6 +32,13 @@ if not os.path.exists(folder):
     os.makedirs(folder)
 del funcs
 
+steppiness=8
+steps=3
+def continuous_step(i):
+    i=6*i
+    t = (i % (2*steps)) - steps
+    return steps - ( math.tanh(steppiness * t - steppiness * math.floor(t) - (steppiness/2) ) / (2 * math.tanh(steppiness/2) ) + 0.5 + math.floor(t) ) * (-1)**math.floor(t/steps)
+
 # User-defined parameters #####################################################
 imgx = 108 #Image dimensions
 imgy = 192
@@ -89,7 +96,8 @@ def render(start, stop, jobID,q):
             continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i =(0.5*math.sin(frame*math.pi/frames))
+        _i = continuous_step(frame/frames)
+        # _i =(0.5*math.sin(frame*math.pi/frames))
         
         # if loud < (vols[frame]/maxVol):
         loud = (vols[frame]/maxVol)**0.5
