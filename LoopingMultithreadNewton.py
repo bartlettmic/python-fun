@@ -19,7 +19,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(3+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return (8)*z**(4+_i)-z-(16)*z**(15)-(2-(loudness))
+    return (8)*z**(4+_i)-z-(16)*z**(15+loudness)-(2-(loudness))
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
@@ -46,7 +46,7 @@ imgx = 108 #Image dimensions
 imgy = 192
 image = Image.new("HSV", (imgx, imgy))
 
-xa = -1.2
+xa = -1.0
 xb =  1.0
 ya = -1.5 # Domain of graph, scaled to dimensions
 yb =  1.5
