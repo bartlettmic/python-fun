@@ -19,7 +19,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(3+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return (8)*z**(3+_i)-z-(16)*z**(15)-(3-(loudness))
+    return (8)*z**(3+_i)-z-(16)*z**(15)-(2-(2*loudness))
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
