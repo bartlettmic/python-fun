@@ -19,7 +19,7 @@ sampleSize = len(samples)
 def f(z,_i,loudness):
     return abs(z**(3+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return (8)*z**(2+_i)-z-(16)*z**(15)-(2-(loudness))
+    return (8)*z**(3+_i)-z-(16)*z**(15)-(2-(loudness))
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
@@ -35,9 +35,9 @@ del funcs
 
 # https://www.wolframalpha.com/input/?i=u-(tanh(a*t-a*floor(t)-(a%2F2))%2F(2*tanh(a%2F2))%2B0.5%2Bfloor(t))*(-1)%5Efloor(t%2Fu)+for+a%3D8,+u%3D3,+t%3Dmod(x,2u)-u
 steppiness=8
-steps=3
+steps=4
 def continuous_step(i):
-    i=6*i
+    i*=steps*2
     t = (i % (2*steps)) - steps
     return steps - ( math.tanh(steppiness * t - steppiness * math.floor(t) - (steppiness/2) ) / (2 * math.tanh(steppiness/2) ) + 0.5 + math.floor(t) ) * (-1)**math.floor(t/steps)
 
