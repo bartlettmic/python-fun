@@ -35,11 +35,11 @@ del funcs
 
 # https://www.wolframalpha.com/input/?i=u-(tanh(a*t-a*floor(t)-(a%2F2))%2F(2*tanh(a%2F2))%2B0.5%2Bfloor(t))*(-1)%5Efloor(t%2Fu)+for+a%3D8,+u%3D3,+t%3Dmod(x,2u)-u
 steppiness=8
-steps=4
+steps=3
 def continuous_step(i):
     i*=steps*2
     t = (i % (2*steps)) - steps
-    return steps - ( math.tanh(steppiness * t - steppiness * math.floor(t) - (steppiness/2) ) / (2 * math.tanh(steppiness/2) ) + 0.5 + math.floor(t) ) * (-1)**math.floor(t/steps)
+    return (steps - ( math.tanh(steppiness * t - steppiness * math.floor(t) - (steppiness/2) ) / (2 * math.tanh(steppiness/2) ) + 0.5 + math.floor(t) ) * (-1)**math.floor(t/steps))*2
 
 # User-defined parameters #####################################################
 imgx = 108 #Image dimensions
@@ -51,7 +51,7 @@ xb =  1.0
 ya = -1.8 # Domain of graph, scaled to dimensions
 yb =  1.8
 
-maxIt = 40 # max iterations allowed
+maxIt = 30 # max iterations allowed
 eps = 0.05 # max error allowed
 
 fps = 20.0  # Frames per second
