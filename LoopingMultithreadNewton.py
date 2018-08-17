@@ -34,7 +34,7 @@ del funcs
 
 
 # https://www.wolframalpha.com/input/?i=u-(tanh(a*t-a*floor(t)-(a%2F2))%2F(2*tanh(a%2F2))%2B0.5%2Bfloor(t))*(-1)%5Efloor(t%2Fu)+for+a%3D8,+u%3D3,+t%3Dmod(x,2u)-u
-steppiness=12
+steppiness=6
 steps=3
 def continuous_step(i):
     i*=steps*2
