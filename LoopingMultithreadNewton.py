@@ -17,9 +17,9 @@ sampleSize = len(samples)
 
 #f(z) and df(z) to be used in newtonion iteration
 def f(z,_i,loudness):
-    return abs(z**(3.05+_i))-z**16-1+cmath.log(abs(z**(4)))
+    return abs(z**(3+_i))-z**16-1+cmath.log(abs(z**(4)))
 def df(z,_i,loudness):
-    return (8)*z**(3+(_i))-(16)*z**(15)-(3-(2*loudness))
+    return (8)*z**(3+_i)-z-(16)*z**(15)-(3-(2*loudness))
     # return 8*z**(3+_i)-z-(16)*z**(15)-1
     # return 8*z**(3+_i)-z-(16)*z**(15)-(1+loudness)
 
@@ -98,7 +98,7 @@ def render(start, stop, jobID,q):
             continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i = continuous_step(frame/frames)
+        # _i = continuous_step(frame/frames)
         # _i =(0.5*math.sin(frame*math.pi/frames))
         
         # if loud < (vols[frame]/maxVol):
@@ -106,6 +106,7 @@ def render(start, stop, jobID,q):
         #loud = vols[frame]/maxVol
         # else:
             # loud = (loud + ((vols[frame])/maxVol)**0.5)/2.0
+        _i = continuous_step(loud)
 
         for y in range(halfy):
             zy = y * (yb - ya) / (imgy - 1) + ya
