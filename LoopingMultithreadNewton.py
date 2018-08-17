@@ -98,7 +98,7 @@ def render(start, stop, jobID,q):
             continue
         q[jobID-1] = ("{}: {}/{}".format(jobID,frame-start,stop-start))
 
-        _i = continuous_step(frame/frames)*2
+        _i = continuous_step(loud*frame/frames)
         # _i =(0.5*math.sin(frame*math.pi/frames))
         
         # if loud < (vols[frame]/maxVol):
