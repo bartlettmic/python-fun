@@ -22,7 +22,7 @@ def unit(vector):
 
 pqr = [ eval(s) for s in sys.argv[1:] ]
 if len(pqr)>3:
-        print "too many numbers; dropping last"
+        print "too many numbers; dropping last" 
         pqr = pqr[:3]
 if sum([ Fraction(1,x) for x in pqr ]) >= 1:
         print "the reciprocals of the numbers must add to less than 1"
